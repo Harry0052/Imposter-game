@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0b0b14" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Imposter Media</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main id="app">
+
+    <!-- ================= HOME ================= -->
+    <section id="screen-home" class="screen active">
+      <header class="brand">
+        <div class="brand-mark">🕵️</div>
+        <h1 class="logo">Imposter<span>Media</span></h1>
+        <p class="tagline">One of you doesn't belong.<br/>Can the group find them?</p>
+      </header>
+
+      <div class="card">
+        <label for="name-input">What should we call you?</label>
+        <input id="name-input" type="text" maxlength="20" placeholder="Your name" autocomplete="off" />
+      </div>
+
+      <button id="btn-create" class="primary big">Create a room</button>
+
+      <div class="divider"><span>or join one</span></div>
+
+      <div class="card">
+        <label for="code-input">Room code</label>
+        <input id="code-input" class="code-input" type="text" maxlength="5"
+               placeholder="XXXXX" autocapitalize="characters" autocomplete="off" inputmode="text" />
+        <button id="btn-join" class="secondary big">Join room</button>
+      </div>
+
+      <p id="landing-error" class="error"></p>
+
+      <footer class="home-footer">3–10 players · phones only · pass the vibes</footer>
+    </section>
+
+    <!-- ================= IN-ROOM ================= -->
+    <section id="screen-room" class="screen">
+      <header class="room-header">
+        <div class="room-header-cell">
+          <div class="label">Room</div>
+          <div id="room-code" class="room-code">-----</div>
+        </div>
+        <div class="room-header-cell">
+          <div class="label">Round</div>
+          <div id="round-number" class="round-number">0</div>
+        </div>
+        <div id="timer" class="timer"></div>
+      </header>
+
+      <!-- ---- WAITING LOBBY ---- -->
+      <div id="phase-waiting-lobby" class="phase">
+        <div class="code-hero" id="code-hero" role="button" tabindex="0" aria-label="Tap to copy room code">
+          <div class="label">Share this code</div>
+          <div id="room-code-big" class="code-big">-----</div>
+          <div class="hint">Tap to copy</div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <h3>Players</h3>
+            <span id="player-count" class="badge">0/10</span>
+          </div>
+          <ul id="player-list" class="player-list"></ul>
+        </div>
+
+        <!-- Host-only settings card. Non-hosts see the same values read-only. -->
+        <div class="section settings-card" id="settings-card">
+          <div class="section-head">
+            <h3>Settings</h3>
+            <span class="badge" id="settings-role">Read-only</span>
+          </div>
+          <div class="settings-grid">
+            <label class="settings-field">
+              <span>Rounds</span>
+              <select id="setting-rounds" disabled>
+                <option value="3">3</option>
+                <option value="5" selected>5</option>
+                <option value="7">7</option>
+                <option value="10">10</option>
+              </select>
+            </label>
+            <label class="settings-field">
+              <span>Category</span>
+              <select id="setting-category" disabled>
+                <option value="any">Any</option>
+              </select>
+            </label>
+            <label class="settings-field">
+              <span>Max players</span>
+              <select id="setting-max" disabled>
+                <option>3</option><option>4</option><option>5</option>
+                <option>6</option><option>7</option><option>8</option>
+                <option>9</option><option selected>10</option>
+              </select>
+            </label>
+            <label class="settings-field">
+              <span>Clue timer</span>
+              <select id="setting-word-seconds" disabled>
+                <option value="15">15s</option>
+                <option value="25" selected>25s</option>
+                <option value="40">40s</option>
+                <option value="60">60s</option>
+              </select>
+            </label>
+            <label class="settings-field">
+              <span>Discuss timer</span>
+              <select id="setting-discussion-seconds" disabled>
+                <option value="15">15s</option>
+                <option value="30" selected>30s</option>
+                <option value="60">60s</option>
+                <option value="90">90s</option>
+              </select>
+            </label>
+            <label class="settings-field">
+              <span>Vote timer</span>
+              <select id="setting-voting-seconds" disabled>
+                <option value="15">15s</option>
+                <option value="30" selected>30s</option>
+                <option value="45">45s</option>
+                <option value="60">60s</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <button id="btn-start" class="primary big hidden">Start game</button>
+        <p id="lobby-hint" class="hint center"></p>
+      </div>
+
+      <!-- ---- SHOWING CONTENT: private view ---- -->
+      <div id="phase-showing-content" class="phase">
+        <div class="warning-banner">
+          <span class="pulse-dot"></span>
+          Don't show anyone your screen
+        </div>
+        <div id="content-box" class="content-box"></div>
+        <p class="hint center">Remember what you saw. The screen clears when the timer ends.</p>
+      </div>
+
+      <!-- ---- SUBMITTING WORDS ---- -->
+      <div id="phase-submitting-words" class="phase">
+        <h2>Say one word</h2>
+        <p class="hint">One word related to what you saw. Just one.</p>
+        <input id="word-input" class="word-input" type="text" maxlength="30"
+               placeholder="your word" autocomplete="off" autocapitalize="none" />
+        <button id="btn-submit-word" class="primary big">Lock it in</button>
+        <p id="word-error" class="error"></p>
+        <p id="word-status" class="hint center"></p>
+
+        <div class="section">
+          <div class="section-head"><h3>Who's ready</h3></div>
+          <ul id="word-progress" class="player-list small"></ul>
+        </div>
+      </div>
+
+      <!-- ---- REVEALING WORDS ---- -->
+      <div id="phase-revealing-words" class="phase">
+        <h2>Everyone's word</h2>
+        <p class="hint">Take a look. Host starts the discussion when ready.</p>
+        <ul id="word-reveal" class="word-reveal"></ul>
+        <button id="btn-start-discussion" class="primary big hidden">Start discussion</button>
+        <p id="reveal-hint" class="hint center"></p>
+      </div>
+
+      <!-- ---- DISCUSSION ---- -->
+      <div id="phase-discussion" class="phase">
+        <h2>Discuss</h2>
+        <p class="hint">Who doesn't fit? Talk it out before the timer runs out.</p>
+        <ul id="discussion-words" class="word-reveal"></ul>
+        <button id="btn-start-vote" class="primary big hidden">Skip to voting</button>
+        <p id="discussion-hint" class="hint center"></p>
+      </div>
+
+      <!-- ---- VOTING ---- -->
+      <div id="phase-voting" class="phase">
+        <h2>Vote the imposter</h2>
+        <p class="hint">One tap locks your vote in. You can't change it.</p>
+        <ul id="vote-list" class="vote-list"></ul>
+        <p id="vote-status" class="hint center"></p>
+      </div>
+
+      <!-- ---- REVEALING RESULTS ---- -->
+      <div id="phase-revealing-results" class="phase">
+        <h2 id="result-headline" class="result-headline"></h2>
+        <p id="result-imposter" class="result-sub"></p>
+
+        <div class="result-contents">
+          <div class="content-card normal">
+            <div class="content-card-label">Most players saw</div>
+            <div id="result-normal" class="content-card-body"></div>
+          </div>
+          <div class="content-card imposter">
+            <div class="content-card-label">The imposter saw</div>
+            <div id="result-imposter-content" class="content-card-body"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><h3>Words</h3></div>
+          <ul id="result-words" class="word-reveal"></ul>
+        </div>
+
+        <div class="section">
+          <div class="section-head"><h3>Votes</h3></div>
+          <div id="result-vote-counts" class="vote-counts"></div>
+        </div>
+
+        <!-- Imposter-only: guess the normal content for a bonus -->
+        <div class="section imposter-guess" id="imposter-guess-section">
+          <div class="section-head">
+            <h3>Bonus guess</h3>
+            <span class="badge" id="imposter-guess-badge">Imposter</span>
+          </div>
+          <p class="hint">Guess the normal content for <strong>+2 pts</strong>.</p>
+          <input id="imposter-guess-input" class="word-input" type="text"
+                 maxlength="60" placeholder="e.g. LeBron dunking" autocomplete="off" />
+          <button id="btn-imposter-guess" class="primary">Submit guess</button>
+          <p id="imposter-guess-status" class="hint center"></p>
+        </div>
+
+        <button id="btn-show-scoreboard" class="primary big hidden">Show scoreboard</button>
+        <button id="btn-reset" class="secondary hidden">Back to lobby</button>
+      </div>
+
+      <!-- ---- SCOREBOARD ---- -->
+      <div id="phase-scoreboard" class="phase">
+        <h2 id="scoreboard-head">Scoreboard</h2>
+        <p class="hint center" id="scoreboard-sub"></p>
+        <ul id="scoreboard-list" class="scoreboard"></ul>
+        <button id="btn-next" class="primary big hidden">Next round</button>
+        <button id="btn-play-again" class="primary big hidden">Play again</button>
+        <button id="btn-reset-from-scoreboard" class="secondary hidden">Back to lobby</button>
+      </div>
+    </section>
+
+    <div id="toast" class="toast"></div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
